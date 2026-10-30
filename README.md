@@ -60,9 +60,9 @@ java -cp out com.education.platform.Main
 
 ## Команда
 
-- Студент 1: _имя_
-- Студент 2: _имя_
-- Студент 3: _имя_
+- Студент 1: Orynbassar Zharkynbek
+- Студент 2: Abdurahim
+- Студент 3: Adilbek Nurasyl
 
 ## Отчёт
 
