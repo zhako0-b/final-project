@@ -11,6 +11,7 @@ public class TeacherNotifier implements IObserver {
     public void update(String message) {
         System.out.println("[TEACHER] " + teacherName + ": " + message);
     }
+
     public String getTeacherName() {
         return teacherName;
     }

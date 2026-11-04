@@ -1,26 +1,35 @@
 package com.education.platform.strategy;
 
 import com.education.platform.model.Course;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 public class TagMatchStrategy implements IRecommendationStrategy {
-    private final String keyword;
-
-    public TagMatchStrategy(String keyword) {
-        this.keyword = keyword.toLowerCase(Locale.ROOT);
-    }
 
     @Override
-    public List<Course> recommend(List<Course> courses) {
+    public List<Course> recommend(
+            List<Course> courses,
+            Map<String, Integer> studentCounts,
+            List<String> interests) {
         List<Course> result = new ArrayList<>();
 
+        if (interests == null) {
+            return result;
+        }
+
         for (Course course : courses) {
-            if (course.getTitle().toLowerCase(Locale.ROOT).contains(keyword)) {
-                result.add(course);
+            for (String tag : course.getTags()) {
+                for (String interest : interests) {
+                    if (interest != null && tag.equalsIgnoreCase(interest)) {
+                        result.add(course);
+                        break;
+                    }
+                }
+                if (result.contains(course)) {
+                    break;
+                }
             }
         }
         return result;
     }
 }
+

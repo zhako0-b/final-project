@@ -10,6 +10,7 @@ public class StudentNotifier implements IObserver {
     public void update(String message) {
         System.out.println("[STUDENT] " + studentName + ": " + message);
     }
+
     public String getStudentName() {
         return studentName;
     }

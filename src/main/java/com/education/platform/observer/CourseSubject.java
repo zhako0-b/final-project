@@ -20,7 +20,7 @@ public class CourseSubject implements ISubject {
 
     @Override
     public void notifyObservers(String message) {
-        for (IObserver observer : observers) {
+        for (IObserver observer : new ArrayList<>(observers)) {
             observer.update(message);
         }
     }
@@ -30,5 +30,12 @@ public class CourseSubject implements ISubject {
 
     public void submitAssignment(String studentName) {
         notifyObservers("Assignment submitted by: " + studentName);
+    }
+
+    public void gradeAssignment(String studentName, int grade) {
+        if (grade < 0 || grade > 100) {
+            throw new IllegalArgumentException("Grade must be between 0 and 100");
+        }
+        notifyObservers(studentName + " received grade: " + grade);
     }
 }
