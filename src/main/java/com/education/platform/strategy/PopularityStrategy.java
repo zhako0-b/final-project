@@ -1,9 +1,17 @@
 package com.education.platform.strategy;
 
-public class PopularityStrategy implements IRecommendationStrategy {
+import com.education.platform.model.Course;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
+public class PopularityStrategy implements IRecommendationStrategy {
     @Override
-    public void recommend() {
-        System.out.println("Recommending courses by popularity");
+    public List<Course> recommend(List<Course> courses) {
+
+        List<Course> result = new ArrayList<>(courses);
+        result.sort(Comparator.comparing(Course::getTitle));
+
+        return result;
     }
 }

@@ -8,7 +8,9 @@ public class CourseSubject implements ISubject {
 
     @Override
     public void addObserver(IObserver observer) {
-        observers.add(observer);
+        if (observer != null && !observers.contains(observer)) {
+            observers.add(observer);
+        }
     }
 
     @Override
@@ -21,5 +23,12 @@ public class CourseSubject implements ISubject {
         for (IObserver observer : observers) {
             observer.update(message);
         }
+    }
+    public void publishAnnouncement(String announcement) {
+        notifyObservers("New announcement: " + announcement);
+    }
+
+    public void submitAssignment(String studentName) {
+        notifyObservers("Assignment submitted by: " + studentName);
     }
 }
