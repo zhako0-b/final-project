@@ -5,28 +5,16 @@ public class QuizContent implements EducationalContent {
     private final String question;
 
     public QuizContent(String title, String question) {
+        if (title == null || title.isBlank()) throw new IllegalArgumentException("Content title is required");
+        if (question == null || question.isBlank()) throw new IllegalArgumentException("Question is required");
         this.title = title;
         this.question = question;
     }
-
     @Override
-    public String getTitle() {
-        return title;
-    }
-
-    public String getQuestion() {
-        return question;
-    }
-
+    public String getTitle() { return title; }
+    public String getQuestion() { return question; }
     @Override
-    public String getType() {
-        return "QUIZ";
-    }
-
+    public String getType() { return "QUIZ"; }
     @Override
-    public String render() {
-        return getType() + ": " + title;
-    }
-
-
+    public String render() { return getType() + ": " + title + " | " + question; }
 }
