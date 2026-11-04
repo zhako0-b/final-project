@@ -24,6 +24,7 @@ public class CourseSubject implements ISubject {
             observer.update(message);
         }
     }
+
     public void publishAnnouncement(String announcement) {
         notifyObservers("New announcement: " + announcement);
     }
@@ -36,6 +37,17 @@ public class CourseSubject implements ISubject {
         if (grade < 0 || grade > 100) {
             throw new IllegalArgumentException("Grade must be between 0 and 100");
         }
-        notifyObservers(studentName + " received grade: " + grade);
+
+        for (IObserver observer : new ArrayList<>(observers)) {
+            if (observer instanceof StudentNotifier) {
+                StudentNotifier student = (StudentNotifier) observer;
+
+                if (student.getStudentName().equals(studentName)) {
+                    student.update("You received grade: " + grade);
+                }
+            } else if (observer instanceof TeacherNotifier) {
+                observer.update(studentName + " received grade: " + grade);
+            }
+        }
     }
 }

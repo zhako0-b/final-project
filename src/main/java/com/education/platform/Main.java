@@ -84,9 +84,11 @@ public class Main {
 
         CourseSubject subject = new CourseSubject();
         StudentNotifier alex = new StudentNotifier("Alex");
+        StudentNotifier dana = new StudentNotifier("Dana");
         TeacherNotifier aida = new TeacherNotifier("Aida");
 
         subject.addObserver(alex);
+        subject.addObserver(dana);
         subject.addObserver(aida);
 
         subject.publishAnnouncement("New lesson available!");
