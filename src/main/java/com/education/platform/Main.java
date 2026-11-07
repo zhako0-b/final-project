@@ -74,9 +74,25 @@ public class Main {
             System.out.println(c.getTitle());
         }
 
+
         context.setStrategy(new TagMatchStrategy());
+
         System.out.println("Courses by tags:");
         for (Course c : context.recommendCourses(courses, counts, List.of("java"))) {
+            System.out.println(c.getTitle());
+        }
+
+        RecommendationSelector selector = new RecommendationSelector();
+
+        context.setStrategy(selector.selectStrategy(List.of("java")));
+        System.out.println("Automatic recommendation:");
+        for (Course c : context.recommendCourses(courses, counts, List.of("java"))) {
+            System.out.println(c.getTitle());
+        }
+
+        context.setStrategy(selector.selectStrategy(List.of()));
+        System.out.println("Automatic popular courses:");
+        for (Course c : context.recommendCourses(courses, counts, List.of())) {
             System.out.println(c.getTitle());
         }
 
