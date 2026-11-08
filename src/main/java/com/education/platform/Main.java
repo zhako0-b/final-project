@@ -1,64 +1,57 @@
 package com.education.platform;
 
-import com.education.platform.builder.ICourseBuilder;
 import com.education.platform.builder.StandardCourseBuilder;
-import com.education.platform.decorator.BaseCourse;
-import com.education.platform.decorator.CertificatedCourseDecorator;
-import com.education.platform.decorator.ICourseComponent;
-import com.education.platform.decorator.MentorshipDecorator;
+import com.education.platform.decorator.*;
 import com.education.platform.facade.PlatformFacade;
 import com.education.platform.factory.ContentFactory;
-import com.education.platform.factory.EducationalContent;
-import com.education.platform.factory.QuizContentFactory;
-import com.education.platform.factory.TextContentFactory;
-import com.education.platform.factory.VideoContentFactory;
+import com.education.platform.model.Assignment;
 import com.education.platform.model.Course;
-import com.education.platform.strategy.PopularityStrategy;
-import com.education.platform.strategy.RecommendationContext;
-import com.education.platform.strategy.TagMatchStrategy;
+import com.education.platform.model.Module;
+import com.education.platform.observer.*;
+import com.education.platform.strategy.*;
+import java.util.*;
 
-/*
- * End-to-end demo: Factory -> Builder -> Decorator -> Strategy -> Observer -> Facade.
- */
+/** Console demo: Factory -> Builder -> Decorator -> Strategy -> Observer -> Facade. */
 public class Main {
     public static void main(String[] args) {
-        // 1. FACTORY METHOD - each factory creates its own content type
-        ContentFactory videoFactory = new VideoContentFactory();
-        ContentFactory textFactory = new TextContentFactory();
-        ContentFactory quizFactory = new QuizContentFactory();
-        EducationalContent[] contents = {
-                videoFactory.createContent("Intro to Java", "https://example.com/intro"),
-                textFactory.createContent("OOP Basics", "Classes and objects"),
-                quizFactory.createContent("Java Quiz 1", "What is a class?")
-        };
-        for (EducationalContent c : contents) {
-            System.out.println("Content created -> " + c.render());
-        }
+        // 1. Factory Method: content is created through factories chosen by type
+        ContentFactory text = ContentFactory.forType("text");
+        ContentFactory video = ContentFactory.forType("video");
+        ContentFactory quiz = ContentFactory.forType("quiz");
+        System.out.println(text.preview("Variables", "int a = 1;"));
 
-        // 2. BUILDER
-        ICourseBuilder builder = new StandardCourseBuilder();
-        Course java = builder.setTitle("Java for Beginners").build();
-        System.out.println("Course built: " + java.getTitle());
+        // 2. Builder: step-by-step course assembly
+        Module module = new Module("Fundamentals")
+                .addContent(text.createContent("Variables", "int a = 1;"))
+                .addContent(video.createContent("Introduction", "https://example.com/java"))
+                .addContent(quiz.createContent("Quick quiz", "Which type stores a whole number?"))
+                .addAssignment(new Assignment("Task 1", "Print your name"));
+        Course course = new StandardCourseBuilder().setTitle("Java Basics").setTeacher("Aida")
+                .setPrice(100).addTag("java").addTag("beginner").addModule(module).build();
+        System.out.println("Course built: " + course.getTitle() + " ($" + course.getPrice() + ")");
 
-        // 3. DECORATOR - options added dynamically, price recalculated
-        ICourseComponent offer = new BaseCourse(java, 100.0);
-        System.out.println("Base: " + offer.getDescription() + " = $" + offer.getPrice());
-        offer = new CertificatedCourseDecorator(offer);
-        offer = new MentorshipDecorator(offer);
-        System.out.println("Decorated: " + offer.getDescription() + " = $" + offer.getPrice());
+        // 3. Decorator: optional extras, price recalculated
+        ICourseComponent offer = new MentorshipDecorator(new CertificatedCourseDecorator(new BaseCourse(course)));
+        System.out.println(offer.getDescription() + " = $" + offer.getPrice());
 
-        // 4. STRATEGY - switch algorithm at runtime
+        // 4. Strategy: switch the algorithm at runtime
+        Map<String, Integer> counts = Map.of("Java Basics", 120);
         RecommendationContext rec = new RecommendationContext(new PopularityStrategy());
-        rec.recommendCourses();
+        System.out.println("Popular: " + rec.recommendCourses(List.of(course), counts, List.of()).size());
         rec.setStrategy(new TagMatchStrategy());
-        rec.recommendCourses();
+        System.out.println("By tags: " + rec.recommendCourses(List.of(course), counts, List.of("java")).size());
 
-        // 5. OBSERVER (Student 2) - TODO: notify subscribers when it is ready
+        // 5. Observer: notify subscribers about course events
+        List<String> inbox = new ArrayList<>();
+        CourseSubject subject = new CourseSubject(course.getTitle());
+        subject.attach(new StudentNotifier("Aigerim", inbox));
+        subject.attach(new TeacherNotifier("Aida", inbox));
+        subject.publishAnnouncement("Lesson 2 is published");
+        subject.submitAssignment("Aigerim");
+        subject.gradeAssignment("Aigerim", 95);
 
-        // 6. FACADE - payment + enrollment + certificate
+        // 6. Facade: payment + enrollment + certificate in simple calls
         PlatformFacade platform = new PlatformFacade();
-        if (platform.purchaseCourse("Aigerim", offer)) {
-            platform.completeCourse("Aigerim", offer);
-        }
+        if (platform.purchaseCourse("Aigerim", offer)) platform.completeCourse("Aigerim", offer);
     }
 }
