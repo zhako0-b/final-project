@@ -22,7 +22,10 @@ public class StandardCourseBuilder implements ICourseBuilder {
     @Override
     public StandardCourseBuilder addTag(String tag) {
         if (tag == null || tag.isBlank()) throw new IllegalArgumentException("Tag is required");
-        if (!tags.contains(tag)) tags.add(tag);
+        String normalized = tag.strip();
+        if (tags.stream().noneMatch(normalized::equalsIgnoreCase)) {
+            tags.add(normalized);
+        }
         return this;
     }
     @Override
