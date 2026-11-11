@@ -40,76 +40,34 @@ public class Server {
             ex.sendResponseHeaders(200, b.length);
             try (OutputStream o = ex.getResponseBody()) { o.write(b); }
         });
-
         api(sv, "/api/courses", p -> {
             String input = p.getOrDefault("interests", "");
-
             List<String> interests = Arrays.stream(input.split(","))
-                    .map(String::trim)
-                    .filter(value -> !value.isBlank())
-                    .collect(Collectors.toList());
-
+                    .map(String::trim).filter(value -> !value.isBlank()).collect(Collectors.toList());
             String mode = p.getOrDefault("strategy", "auto");
             IRecommendationStrategy strategy;
-
             if ("popular".equalsIgnoreCase(mode)) {
                 strategy = new PopularityStrategy();
             } else if ("tags".equalsIgnoreCase(mode)) {
                 strategy = new TagMatchStrategy();
             } else {
-                strategy = new RecommendationSelector()
-                        .selectStrategy(interests);
+                strategy = new RecommendationSelector().selectStrategy(interests);
             }
-
             List<Course> result = new RecommendationContext(strategy)
-                    .recommendCourses(
-                            new ArrayList<>(courses.values()),
-                            students,
-                            interests
-                    );
-
-            String search = p.getOrDefault("search", "")
-                    .trim()
-                    .toLowerCase(Locale.ROOT);
-
-            String tagFilter = p.getOrDefault("tag", "")
-                    .trim()
-                    .toLowerCase(Locale.ROOT);
-
-            int maxPrice = Integer.parseInt(
-                    p.getOrDefault("maxPrice", "1000000")
-            );
+                    .recommendCourses(new ArrayList<>(courses.values()), students, interests);
+            String search = p.getOrDefault("search", "").trim().toLowerCase(Locale.ROOT);
+            String tagFilter = p.getOrDefault("tag", "").trim().toLowerCase(Locale.ROOT);
+            int maxPrice = Integer.parseInt(p.getOrDefault("maxPrice", "1000000"));
             result.removeIf(course -> {
-
-                boolean matchesSearch =
-                        course.getTitle()
-                                .toLowerCase(Locale.ROOT)
-                                .contains(search)
-                                || course.getTeacher()
-                                .toLowerCase(Locale.ROOT)
-                                .contains(search)
-                                || course.getTags().stream()
-                                .anyMatch(tag ->
-                                        tag.toLowerCase(Locale.ROOT)
-                                                .contains(search)
-                                );
-
-                boolean matchesTag =
-                        tagFilter.isBlank()
-                                || course.getTags().stream()
-                                .anyMatch(tag ->
-                                        tag.equalsIgnoreCase(tagFilter)
-                                );
-
+                boolean matchesSearch = course.getTitle().toLowerCase(Locale.ROOT).contains(search)
+                        || course.getTeacher().toLowerCase(Locale.ROOT).contains(search)
+                        || course.getTags().stream().anyMatch(tag -> tag.toLowerCase(Locale.ROOT).contains(search));
+                boolean matchesTag = tagFilter.isBlank()
+                        || course.getTags().stream().anyMatch(tag -> tag.equalsIgnoreCase(tagFilter));
                 boolean matchesPrice = course.getPrice() <= maxPrice;
-                return !matchesSearch
-                        || !matchesTag
-                        || !matchesPrice;
+                return !matchesSearch || !matchesTag || !matchesPrice;
             });
-
-            return "[" + result.stream()
-                    .map(Server::courseJson)
-                    .collect(Collectors.joining(",")) + "]";
+            return "[" + result.stream().map(Server::courseJson).collect(Collectors.joining(",")) + "]";
         });
 
         api(sv, "/api/quote", p -> {
@@ -121,10 +79,14 @@ public class Server {
             ICourseComponent o = offer(p);
             boolean ok = facade.purchaseCourse(st, o);
             if (ok) {
-                enrolled.computeIfAbsent(st, k -> new LinkedHashMap<>()).put(t, o);
-                students.merge(t, 1, Integer::sum);
+                Map<String, ICourseComponent> mine = enrolled.computeIfAbsent(st, k -> new LinkedHashMap<>());
+                boolean first = !mine.containsKey(t);
+                mine.put(t, o);
                 CourseSubject sub = subjects.get(t);
-                sub.attach(new StudentNotifier(st, inbox));
+                if (first) {
+                    students.merge(t, 1, Integer::sum);
+                    sub.attach(new StudentNotifier(st, inbox));
+                }
                 sub.notifyObservers(st + " enrolled in the course");
             }
             return "{\"ok\":" + ok + ",\"description\":" + s(o.getDescription()) + ",\"total\":" + o.getPrice() + "}";
@@ -146,11 +108,7 @@ public class Server {
             return "{\"file\":" + s(file) + "}";
         });
         api(sv, "/api/create", p -> {
-            ContentFactory f = switch (p.getOrDefault("type", "text")) {
-                case "video" -> new VideoContentFactory();
-                case "quiz" -> new QuizContentFactory();
-                default -> new TextContentFactory();
-            };
+            ContentFactory f = ContentFactory.forType(p.getOrDefault("type", "text"));
             StandardCourseBuilder b = new StandardCourseBuilder().setTitle(p.get("title"))
                     .setTeacher(p.get("teacher")).setPrice(Integer.parseInt(p.getOrDefault("price", "0")));
             for (String t : p.getOrDefault("tags", "").split(",")) if (!t.isBlank()) b.addTag(t.trim());
@@ -165,26 +123,17 @@ public class Server {
         api(sv, "/api/announce", p -> {
             CourseSubject sub = subjects.get(p.get("course"));
             if (sub == null) throw new IllegalArgumentException("Unknown course");
-            sub.notifyObservers("Announcement: " + need(p, "text"));
+            sub.publishAnnouncement(need(p, "text"));
             return "{\"ok\":true}";
         });
         api(sv, "/api/grade", p -> {
             String course = need(p, "course");
             String student = need(p, "student");
             int grade = Integer.parseInt(need(p, "grade"));
-
             CourseSubject subject = subjects.get(course);
-            if (subject == null) {
-                throw new IllegalArgumentException("Unknown course");
-            }
-
-            if (!enrolled.getOrDefault(
-                    student, Collections.emptyMap()
-            ).containsKey(course)) {
-                throw new IllegalArgumentException(
-                        "Student is not enrolled in this course"
-                );
-            }
+            if (subject == null) throw new IllegalArgumentException("Unknown course");
+            if (!enrolled.getOrDefault(student, Collections.emptyMap()).containsKey(course))
+                throw new IllegalArgumentException("Student is not enrolled in this course");
             subject.gradeAssignment(student, grade);
             return "{\"ok\":true}";
         });
@@ -201,234 +150,41 @@ public class Server {
         ContentFactory text = new TextContentFactory();
         ContentFactory video = new VideoContentFactory();
         ContentFactory quiz = new QuizContentFactory();
-
-        addDemoCourse(
-                "Java Basics",
-                "Aida",
-                100,
-                120,
-                24,
-                "Основы Java: переменные, циклы и ООП.",
-                "Преподаватель Java.",
-                List.of("java", "beginner", "programming"),
-                "Java Fundamentals",
-                text,
-                video,
-                quiz
-        );
-
-        addDemoCourse(
-                "Python Programming",
-                "Marat",
-                90,
-                110,
-                30,
-                "Изучение Python с нуля.",
-                "Преподаватель программирования.",
-                List.of("python", "beginner", "programming"),
-                "Python Fundamentals",
-                text,
-                video,
-                quiz
-        );
-
-        addDemoCourse(
-                "Web Design",
-                "Dana",
-                60,
-                80,
-                16,
-                "HTML, CSS и адаптивная вёрстка.",
-                "Веб-дизайнер.",
-                List.of("web", "design", "beginner"),
-                "HTML and CSS",
-                text,
-                video,
-                quiz
-        );
-
-        addDemoCourse(
-                "Data Science",
-                "Marat",
-                150,
-                45,
-                40,
-                "Анализ данных с помощью Python.",
-                "Специалист по анализу данных.",
-                List.of("python", "data", "advanced"),
-                "Data Analysis",
-                text,
-                video,
-                quiz
-        );
-
-        addDemoCourse(
-                "Cybersecurity",
-                "Alex",
-                140,
-                70,
-                35,
-                "Основы защиты компьютерных систем.",
-                "Специалист по кибербезопасности.",
-                List.of("security", "network", "advanced"),
-                "Security Fundamentals",
-                text,
-                video,
-                quiz
-        );
-
-        addDemoCourse(
-                "UI/UX Design",
-                "Dana",
-                85,
-                95,
-                22,
-                "Проектирование удобных интерфейсов.",
-                "UI/UX-дизайнер.",
-                List.of("design", "web", "beginner"),
-                "User Experience",
-                text,
-                video,
-                quiz
-        );
-
-        addDemoCourse(
-                "Java Advanced",
-                "Aida",
-                180,
-                55,
-                42,
-                "Продвинутые темы Java и архитектура приложений.",
-                "Преподаватель Java.",
-                List.of("java", "advanced", "programming"),
-                "Advanced Java",
-                text,
-                video,
-                quiz
-        );
-
-        addDemoCourse(
-                "Machine Learning",
-                "Marat",
-                200,
-                65,
-                48,
-                "Введение в машинное обучение.",
-                "Специалист по машинному обучению.",
-                List.of("python", "data", "advanced"),
-                "Machine Learning Basics",
-                text,
-                video,
-                quiz
-        );
-
-        addDemoCourse(
-                "Mobile Development",
-                "Alex",
-                130,
-                75,
-                32,
-                "Разработка мобильных приложений.",
-                "Разработчик мобильных приложений.",
-                List.of("mobile", "java", "programming"),
-                "Mobile Applications",
-                text,
-                video,
-                quiz
-        );
-
-        addDemoCourse(
-                "Digital Marketing",
-                "Dana",
-                70,
-                100,
-                20,
-                "Основы продвижения продуктов в интернете.",
-                "Специалист по цифровому маркетингу.",
-                List.of("marketing", "business", "beginner"),
-                "Marketing Fundamentals",
-                text,
-                video,
-                quiz
-        );
+        Object[][] rows = {
+            {"Java Basics", "Aida", 100, 120, 24, "Основы Java: переменные, циклы и ООП.", "Преподаватель Java.", "java,beginner,programming", "Java Fundamentals"},
+            {"Python Programming", "Marat", 90, 110, 30, "Изучение Python с нуля.", "Преподаватель программирования.", "python,beginner,programming", "Python Fundamentals"},
+            {"Web Design", "Dana", 60, 80, 16, "HTML, CSS и адаптивная вёрстка.", "Веб-дизайнер.", "web,design,beginner", "HTML and CSS"},
+            {"Data Science", "Marat", 150, 45, 40, "Анализ данных с помощью Python.", "Специалист по анализу данных.", "python,data,advanced", "Data Analysis"},
+            {"Cybersecurity", "Alex", 140, 70, 35, "Основы защиты компьютерных систем.", "Специалист по кибербезопасности.", "security,network,advanced", "Security Fundamentals"},
+            {"UI/UX Design", "Dana", 85, 95, 22, "Проектирование удобных интерфейсов.", "UI/UX-дизайнер.", "design,web,beginner", "User Experience"},
+            {"Java Advanced", "Aida", 180, 55, 42, "Продвинутые темы Java и архитектура приложений.", "Преподаватель Java.", "java,advanced,programming", "Advanced Java"},
+            {"Machine Learning", "Marat", 200, 65, 48, "Введение в машинное обучение.", "Специалист по машинному обучению.", "python,data,advanced", "Machine Learning Basics"},
+            {"Mobile Development", "Alex", 130, 75, 32, "Разработка мобильных приложений.", "Разработчик мобильных приложений.", "mobile,java,programming", "Mobile Applications"},
+            {"Digital Marketing", "Dana", 70, 100, 20, "Основы продвижения продуктов в интернете.", "Специалист по цифровому маркетингу.", "marketing,business,beginner", "Marketing Fundamentals"}
+        };
+        for (Object[] r : rows) {
+            addDemoCourse((String) r[0], (String) r[1], (int) r[2], (int) r[3], (int) r[4], (String) r[5],
+                    (String) r[6], List.of(((String) r[7]).split(",")), (String) r[8], text, video, quiz);
+        }
     }
 
-    static void addDemoCourse(
-            String title,
-            String teacher,
-            int price,
-            int studentCount,
-            int hours,
-            String description,
-            String bio,
-            List<String> tags,
-            String moduleTitle,
-            ContentFactory text,
-            ContentFactory video,
-            ContentFactory quiz
-    ) {
-
+    static void addDemoCourse(String title, String teacher, int price, int studentCount, int hours,
+                              String description, String bio, List<String> tags, String moduleTitle,
+                              ContentFactory text, ContentFactory video, ContentFactory quiz) {
         Module firstModule = new Module(moduleTitle)
-                .addContent(
-                        text.createContent(
-                                "Introduction",
-                                "Introduction to " + title
-                        )
-                )
-                .addContent(
-                        video.createContent(
-                                "Video Lesson",
-                                "https://example.com/lesson"
-                        )
-                )
-                .addContent(
-                        quiz.createContent(
-                                "Knowledge Check",
-                                "What did you learn?"
-                        )
-                )
-                .addAssignment(
-                        new Assignment(
-                                "Practical Task",
-                                "Complete a practical task about " + title
-                        )
-                );
-
+                .addContent(text.createContent("Introduction", "Introduction to " + title))
+                .addContent(video.createContent("Video Lesson", "https://example.com/lesson"))
+                .addContent(quiz.createContent("Knowledge Check", "What did you learn?"))
+                .addAssignment(new Assignment("Practical Task", "Complete a practical task about " + title));
         Module secondModule = new Module("Practice")
-                .addContent(
-                        text.createContent(
-                                "Practice Guide",
-                                "Practice the skills from " + title
-                        )
-                )
-                .addAssignment(
-                        new Assignment(
-                                "Final Project",
-                                "Create a small project using your new skills"
-                        )
-                );
-
-        StandardCourseBuilder builder = new StandardCourseBuilder()
-                .setTitle(title)
-                .setTeacher(teacher)
-                .setPrice(price);
-
-        for (String tag : tags) {
-            builder.addTag(tag);
-        }
-
-        Course course = builder
-                .addModule(firstModule)
-                .addModule(secondModule)
-                .build();
-
+                .addContent(text.createContent("Practice Guide", "Practice the skills from " + title))
+                .addAssignment(new Assignment("Final Project", "Create a small project using your new skills"));
+        StandardCourseBuilder builder = new StandardCourseBuilder().setTitle(title).setTeacher(teacher).setPrice(price);
+        for (String tag : tags) builder.addTag(tag);
+        Course course = builder.addModule(firstModule).addModule(secondModule).build();
         publish(course);
         students.put(title, studentCount);
-
-        info.put(
-                title,
-                new Info(description, hours, bio)
-        );
+        info.put(title, new Info(description, hours, bio));
     }
 
     static void publish(Course c) {
