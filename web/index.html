@@ -1,0 +1,135 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>EduPlatform — онлайн-обучение</title>
+<style>
+:root{--ac:#4f46e5;--bg:#f6f7fb;--tx:#1e293b;--mu:#64748b;--bd:#e2e8f0}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--tx)}
+header{position:sticky;top:0;z-index:5;background:#fffd;backdrop-filter:blur(8px);border-bottom:1px solid var(--bd);display:flex;gap:12px;align-items:center;padding:12px 24px;flex-wrap:wrap}
+header b{color:var(--ac);font-size:20px;margin-right:auto}
+nav button,.btn{border:0;border-radius:10px;padding:9px 16px;cursor:pointer;background:transparent;font:inherit;transition:.15s}
+nav button.on{background:#eef2ff;color:var(--ac)}.btn{background:var(--ac);color:#fff}.btn:hover{filter:brightness(1.1);transform:translateY(-1px)}.btn.alt{background:#e2e8f0;color:var(--tx)}
+main{max-width:1100px;margin:0 auto;padding:0 16px 40px}
+input,select{padding:9px 12px;border:1px solid var(--bd);border-radius:10px;font:inherit;max-width:100%;background:#fff}
+.hero{margin:24px 0;padding:48px 32px;border-radius:24px;color:#fff;background:linear-gradient(135deg,#4f46e5,#7c3aed 60%,#ec4899)}
+.hero h1{font-size:clamp(28px,5vw,46px);margin:0 0 12px}.hero p{font-size:18px;max-width:640px;opacity:.92;margin:0 0 20px}
+.hero .btn{background:#fff;color:var(--ac);margin-right:8px}.hero .btn.alt{background:#fff3;color:#fff}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:-8px 0 28px}
+.stats div{background:#fff;border:1px solid var(--bd);border-radius:14px;padding:14px;text-align:center}.stats b{display:block;font-size:28px;color:var(--ac)}.stats span{color:var(--mu);font-size:14px}
+h2.s{margin:32px 0 12px}.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.step{background:#fff;border:1px solid var(--bd);border-radius:14px;padding:16px}.step .n{font-size:28px}.pat{font-size:12px;background:#eef2ff;color:var(--ac);border-radius:99px;padding:2px 10px;display:inline-block}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;margin-top:16px}
+.card{background:#fff;border:1px solid var(--bd);border-radius:16px;overflow:hidden;cursor:pointer;transition:.2s}.card:hover{transform:translateY(-4px);box-shadow:0 10px 24px #4f46e522}
+.top{display:flex;justify-content:space-between;align-items:center;padding:18px;color:#fff;font-size:40px}.top em{font-style:normal;font-size:22px;font-weight:700;background:#fff3;border-radius:99px;padding:4px 14px}
+.body{padding:16px}.body h3{margin:0 0 4px}.facts{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0;font-size:14px}
+.box{background:#fff;border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:12px}
+.tag{display:inline-block;background:#eef2ff;color:var(--ac);border-radius:99px;padding:2px 10px;font-size:12px;margin:2px}
+.t-VIDEO{background:#fee2e2;color:#b91c1c}.t-TEXT{background:#dcfce7;color:#15803d}.t-QUIZ{background:#fef3c7;color:#b45309}
+.mu{color:var(--mu);font-size:14px}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+#modal{position:fixed;inset:0;background:#0007;display:none;align-items:center;justify-content:center;padding:16px;z-index:9}
+#modal .box{max-width:680px;width:100%;max-height:92vh;overflow:auto;padding:0}#mb{padding:20px}
+.kf{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}.kf div{background:var(--bg);border-radius:10px;padding:10px}.kf b{display:block;font-size:18px}
+.teach{display:flex;gap:14px;align-items:center;background:var(--bg);border-radius:12px;padding:14px;margin:14px 0}
+.av{width:52px;height:52px;border-radius:50%;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;flex:none}
+.tot{font-size:22px;font-weight:700;color:var(--ac)}.msg{padding:8px 12px;background:#fff;border-left:3px solid var(--ac);margin:6px 0;border-radius:4px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px;align-items:start}
+.v{display:none}.v.on{display:block}footer{text-align:center;color:var(--mu);font-size:13px;padding:24px}
+</style></head><body>
+<header><b>🎓 EduPlatform</b><nav><button data-v="p1" onclick="page('p1')">Главная</button><button data-v="p2" onclick="page('p2')">Личный кабинет</button></nav>
+<input id="who" value="Aigerim" size="12" title="Ваше имя"></header>
+<main>
+<section id="p1" class="v on">
+<div class="hero"><h1>Учитесь у практиков — в своём темпе</h1><p>EduPlatform — онлайн-платформа, где преподаватели собирают курсы из видеоуроков, статей, квизов и заданий, а студенты выбирают программу, добавляют сертификат или персонального ментора и сразу начинают учиться.</p>
+<button class="btn" onclick="document.getElementById('cat').scrollIntoView({behavior:'smooth'})">Смотреть курсы</button><button class="btn alt" onclick="page('p2')">Личный кабинет</button></div>
+<div class="stats" id="st"></div>
+<h2 class="s">Как это работает</h2>
+<div class="steps">
+<div class="step"><div class="n">🔎</div><b>1. Найдите курс</b><p class="mu">Смотрите популярные курсы или получите подборку по своим интересам (java, web, python).</p><span class="pat">Strategy</span></div>
+<div class="step"><div class="n">🧩</div><b>2. Настройте программу</b><p class="mu">Добавьте сертификат или менторство — цена пересчитывается сразу.</p><span class="pat">Decorator</span></div>
+<div class="step"><div class="n">💳</div><b>3. Оплатите в один клик</b><p class="mu">Оплата, зачисление на курс и выдача сертификата — одним действием.</p><span class="pat">Facade</span></div>
+<div class="step"><div class="n">🔔</div><b>4. Будьте в курсе</b><p class="mu">Анонсы и события курса приходят студентам и преподавателям.</p><span class="pat">Observer</span></div>
+<div class="step"><div class="n">🛠️</div><b>5. Создавайте курсы</b><p class="mu">Преподаватель шаг за шагом собирает курс: модули, видео, тексты, квизы.</p><span class="pat">Builder + Factory</span></div>
+</div>
+<div id="demo" class="box" style="display:none;background:#fffbeb;margin-top:20px">⚠️ Демо-режим: сервер не запущен, данные хранятся только в браузере. Для Java-бэкенда запустите Server и откройте http://localhost:8080</div>
+<h2 class="s" id="cat">Каталог курсов</h2>
+<div class="row"><button class="btn sb" data-s="popular" onclick="setS('popular')">🔥 Популярные</button><button class="btn sb" data-s="tags" onclick="setS('tags')">🎯 По моим интересам</button>
+<input id="int" placeholder="Интересы: java, web" oninput="catalog()"></div>
+<div class="row"><input id="sq" placeholder="🔍 Поиск: курс, преподаватель, тег" size="30" oninput="catalog()"><select id="ft" onchange="catalog()"><option value="">Все теги</option></select><input id="mp" type="number" placeholder="Макс. цена $" style="width:130px" oninput="catalog()"></div>
+<div id="cards" class="grid"></div>
+</section>
+<section id="p2" class="v">
+<h2 class="s">Личный кабинет: <span id="sn"></span></h2>
+<div class="cols"><div><h3>🎓 Мои курсы</h3><div id="mine"></div><h3>🔔 Уведомления</h3><div id="inbox"></div></div>
+<div><div class="box"><h3>🛠️ Создать курс <span class="pat">Builder + Factory</span></h3>
+<div class="row"><input id="ti" placeholder="Название"><input id="tn" value="Aida" placeholder="Преподаватель"><input id="pr" type="number" value="50" style="width:90px" title="Цена"></div>
+<div class="row"><input id="tg" placeholder="Теги через запятую"><input id="hr" type="number" value="10" style="width:90px" title="Часов"></div>
+<div class="row"><input id="de" placeholder="Описание курса" size="40"></div><div class="row"><input id="bi" placeholder="О преподавателе" size="40"></div>
+<div class="row"><input id="mo" value="Модуль 1"><select id="ty"><option value="text">Текст</option><option value="video">Видео</option><option value="quiz">Квиз</option></select></div>
+<div class="row"><input id="ct" placeholder="Название материала"><input id="cd" placeholder="Текст / ссылка / вопрос"></div>
+<button class="btn" onclick="create()">Создать курс</button></div>
+<div class="box"><h3>📣 Анонс студентам <span class="pat">Observer</span></h3><div class="row"><select id="ac"></select><input id="at" placeholder="Текст анонса"><button class="btn" onclick="announce()">Отправить</button></div></div>
+<div class="box"><h3>✅ Оценить задание <span class="pat">Observer</span></h3><div class="row"><select id="gc"></select><input id="gs" value="Aigerim" size="10" title="Студент"><input id="gv" type="number" value="90" min="0" max="100" style="width:80px" title="Оценка"><button class="btn" onclick="grade()">Оценить</button></div></div>
+<h3>🔔 Уведомления преподавателя</h3><div id="tin"></div></div></div>
+</section>
+</main>
+<footer>EduPlatform · итоговый проект · Factory · Builder · Decorator · Strategy · Observer · Facade</footer>
+<div id="modal" onclick="if(event.target==this)this.style.display='none'"><div class="box"><div id="mb"></div></div></div>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const mk=(title,teacher,price,students,hours,description,bio,tags,mod)=>({title,teacher,price,students,hours,description,bio,tags:tags.split(','),modules:[{title:mod,materials:[{type:'TEXT',title:'Introduction'},{type:'VIDEO',title:'Video Lesson'},{type:'QUIZ',title:'Knowledge Check'}],assignments:['Practical Task']},{title:'Practice',materials:[{type:'TEXT',title:'Practice Guide'}],assignments:['Final Project']}]});
+const DEMO=[
+mk('Java Basics','Aida',100,120,24,'Основы Java: переменные, циклы и ООП.','Преподаватель Java.','java,beginner,programming','Java Fundamentals'),
+mk('Python Programming','Marat',90,110,30,'Изучение Python с нуля.','Преподаватель программирования.','python,beginner,programming','Python Fundamentals'),
+mk('Web Design','Dana',60,80,16,'HTML, CSS и адаптивная вёрстка.','Веб-дизайнер.','web,design,beginner','HTML and CSS'),
+mk('Data Science','Marat',150,45,40,'Анализ данных с помощью Python.','Специалист по анализу данных.','python,data,advanced','Data Analysis'),
+mk('Cybersecurity','Alex',140,70,35,'Основы защиты компьютерных систем.','Специалист по кибербезопасности.','security,network,advanced','Security Fundamentals'),
+mk('UI/UX Design','Dana',85,95,22,'Проектирование удобных интерфейсов.','UI/UX-дизайнер.','design,web,beginner','User Experience'),
+mk('Java Advanced','Aida',180,55,42,'Продвинутые темы Java и архитектура приложений.','Преподаватель Java.','java,advanced,programming','Advanced Java'),
+mk('Machine Learning','Marat',200,65,48,'Введение в машинное обучение.','Специалист по машинному обучению.','python,data,advanced','Machine Learning Basics'),
+mk('Mobile Development','Alex',130,75,32,'Разработка мобильных приложений.','Разработчик мобильных приложений.','mobile,java,programming','Mobile Applications'),
+mk('Digital Marketing','Dana',70,100,20,'Основы продвижения продуктов в интернете.','Специалист по цифровому маркетингу.','marketing,business,beginner','Marketing Fundamentals')];
+const DB={my:{},inbox:[]};
+function local(p,q){const c=DEMO.find(x=>x.title==q.course),cr=q.cert==1,mt=q.mentor==1;
+const price=()=>c.price+(cr?20:0)+(mt?50:0),desc=()=>c.title+(cr?' + Certificate':'')+(mt?' + Mentorship':'');
+if(p=='courses'){let l=[...DEMO];const i=(q.interests||'').split(',').map(x=>x.trim().toLowerCase()).filter(Boolean),sc=x=>x.tags.filter(t=>i.includes(t)).length;
+if(q.strategy=='tags'){l=i.length?l.filter(sc).sort((a,b)=>sc(b)-sc(a)||b.students-a.students):[]}else l.sort((a,b)=>b.students-a.students);
+const se=(q.search||'').toLowerCase(),tg=(q.tag||'').toLowerCase(),mp=q.maxPrice?+q.maxPrice:1e9;
+return l.filter(x=>(x.title+' '+x.teacher+' '+x.tags.join(' ')).toLowerCase().includes(se)&&(!tg||x.tags.includes(tg))&&x.price<=mp)}
+if(p=='quote')return{description:desc(),price:price()};
+if(p=='purchase'){(DB.my[q.student]=DB.my[q.student]||{})[c.title]={course:c.title,description:desc(),price:price()};c.students++;DB.inbox.push(q.student+'|['+c.title+'] '+q.student+' enrolled in the course');return{ok:true,description:desc(),total:price()}}
+if(p=='my')return Object.values(DB.my[q.student]||{});
+if(p=='complete'){const o=(DB.my[q.student]||{})[q.course];if(!o||!o.description.includes('Certificate'))throw new Error('Курс куплен без сертификата');return{file:'certificate_'+q.student+'.pdf'}}
+if(p=='create'){DEMO.push({title:q.title,teacher:q.teacher,price:+q.price,tags:(q.tags||'').split(',').map(x=>x.trim()).filter(Boolean),students:0,hours:+q.hours||0,description:q.description||'',bio:q.bio||'',modules:[{title:q.module,materials:[{type:(q.type||'text').toUpperCase(),title:q.contentTitle}],assignments:[]}]});return{}}
+if(p=='announce'){for(const st in DB.my)if(DB.my[st][q.course])DB.inbox.push(st+'|['+q.course+'] New announcement: '+q.text);return{ok:true}}
+if(p=='grade'){if(+q.grade<0||+q.grade>100)throw new Error('Grade must be between 0 and 100');if(!(DB.my[q.student]||{})[q.course])throw new Error('Student is not enrolled in this course');DB.inbox.push(q.student+'|['+q.course+'] Your assignment was graded: '+q.grade);return{ok:true}}
+if(p=='notifications')return DB.inbox.filter(x=>x.startsWith(q.user+'|')).map(x=>x.slice(q.user.length+1))}
+const call=(p,q={},m='GET')=>fetch('/api/'+p+'?'+new URLSearchParams(q),{method:m}).then(r=>r.json()).then(d=>{if(d&&d.error)throw new Error(d.error);return d}).catch(e=>{if(!(e instanceof TypeError))throw e;$('#demo').style.display='block';return local(p,q)});
+let strat='popular',L=[],M=[],cur;
+const ICON=['☕','🎨','📊','🚀','🧠','🔬'],GR=['#4f46e5,#7c3aed','#0ea5e9,#6366f1','#10b981,#0ea5e9','#f59e0b,#ef4444','#ec4899,#8b5cf6'];
+const lessons=c=>c.modules.reduce((a,m)=>a+m.materials.length,0),tasks=c=>c.modules.reduce((a,m)=>a+m.assignments.length,0),ph=c=>(c.price/Math.max(c.hours,1)).toFixed(1);
+function page(v){document.querySelectorAll('.v').forEach(e=>e.classList.toggle('on',e.id==v));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v==v));scrollTo(0,0);v=='p1'?catalog():cabinet()}
+function setS(s){strat=s;catalog()}
+async function catalog(){const all=await call('courses',{strategy:'popular',interests:''});const sel=$('#ft').value;$('#ft').innerHTML='<option value="">Все теги</option>'+[...new Set(all.flatMap(c=>c.tags))].sort().map(t=>`<option${t==sel?' selected':''}>${esc(t)}</option>`).join('');
+const q={strategy:strat,interests:$('#int').value,search:$('#sq').value,tag:sel};if($('#mp').value)q.maxPrice=$('#mp').value;L=await call('courses',q);
+$('#st').innerHTML=[[all.length,'курсов'],[all.reduce((a,c)=>a+c.students,0),'студентов'],[all.reduce((a,c)=>a+c.hours,0),'часов обучения'],[all.reduce((a,c)=>a+lessons(c),0),'уроков и квизов']].map(x=>`<div><b>${x[0]}</b><span>${x[1]}</span></div>`).join('');
+$('#cards').innerHTML=L.map((c,i)=>`<div class="card" onclick="openCourse(${i})"><div class="top" style="background:linear-gradient(135deg,${GR[i%GR.length]})"><span>${ICON[i%ICON.length]}</span><em>$${c.price}</em></div><div class="body"><h3>${esc(c.title)}</h3><div class="mu">👩‍🏫 ${esc(c.teacher)}</div><p class="mu">${esc(c.description)}</p><div class="facts"><span>⏱ ${c.hours} ч</span><span>🎬 ${lessons(c)} ур.</span><span>📝 ${tasks(c)} зад.</span><span>👥 ${c.students}</span></div><div>${c.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div><div class="mu" style="margin:8px 0">≈ $${ph(c)} за час обучения</div><button class="btn">Подробнее</button></div></div>`).join('')||(strat=='tags'&&!$('#int').value.trim()?'<p class="mu">Введите интересы через запятую, например: java, web</p>':'<p class="mu">Ничего не найдено — попробуйте теги: java, web, python</p>');
+document.querySelectorAll('.sb').forEach(b=>b.classList.toggle('alt',b.dataset.s!=strat))}
+function opts(){return{course:cur.title,cert:$('#cert').checked?1:0,mentor:$('#men').checked?1:0}}
+function openCourse(i){cur=L[i];const c=cur;
+$('#mb').innerHTML=`<div class="top" style="margin:-20px -20px 16px;background:linear-gradient(135deg,${GR[i%GR.length]})"><span>${ICON[i%ICON.length]}</span><em>$${c.price}</em></div><h2 style="margin:0 0 8px">${esc(c.title)}</h2><p>${esc(c.description)}</p>
+<div class="kf"><div><b>$${c.price}</b><span class="mu">базовая цена</span></div><div><b>${c.hours} ч</b><span class="mu">длительность</span></div><div><b>${c.modules.length}</b><span class="mu">модулей</span></div><div><b>${lessons(c)}</b><span class="mu">уроков и квизов</span></div><div><b>${tasks(c)}</b><span class="mu">заданий</span></div><div><b>${c.students}</b><span class="mu">студентов</span></div></div>
+<h3>Программа курса</h3>`+c.modules.map((m,k)=>`<div class="box"><b>Модуль ${k+1}. ${esc(m.title)}</b>`+m.materials.map(x=>`<div class="row"><span class="tag t-${x.type}">${x.type}</span>${esc(x.title)}</div>`).join('')+m.assignments.map(a=>`<div class="mu">📝 Задание: ${esc(a)}</div>`).join('')+`</div>`).join('')+
+`<div class="teach"><div class="av">${esc(c.teacher[0])}</div><div><b>${esc(c.teacher)}</b><div class="mu">${esc(c.bio)}</div></div></div>
+<h3>Настройте курс</h3><div class="row"><label><input type="checkbox" id="cert" onchange="quote()"> 🏅 Сертификат (+$20)</label><label><input type="checkbox" id="men" onchange="quote()"> 🧑‍🏫 Менторство (+$50)</label></div>
+<div class="tot" id="qt"></div><div class="row"><button class="btn" onclick="buy()">Купить</button><button class="btn alt" onclick="$('#modal').style.display='none'">Закрыть</button></div>`;
+$('#modal').style.display='flex';quote()}
+async function quote(){const q=await call('quote',opts());$('#qt').textContent='Итого: $'+q.price+' · '+q.description}
+async function buy(){try{const r=await call('purchase',{...opts(),student:$('#who').value},'POST');alert('Вы записаны: '+r.description+' ($'+r.total+')');$('#modal').style.display='none';catalog()}catch(e){alert(e.message)}}
+async function cabinet(){const w=$('#who').value;$('#sn').textContent=w;M=await call('my',{student:w});
+$('#mine').innerHTML=M.map((c,i)=>`<div class="box"><b>${esc(c.course)}</b><div class="mu">${esc(c.description)} · $${c.price}</div><div class="row"><button class="btn" onclick="done(${i})">Завершить курс и получить сертификат</button></div></div>`).join('')||'<p class="mu">Курсов пока нет — выберите курс на главной странице.</p>';
+const n=await call('notifications',{user:w});$('#inbox').innerHTML=n.map(x=>`<div class="msg">${esc(x)}</div>`).join('')||'<p class="mu">Нет уведомлений</p>';
+const l=await call('courses');$('#ac').innerHTML=l.map(c=>`<option>${esc(c.title)}</option>`).join('');$('#gc').innerHTML=$('#ac').innerHTML;
+const t=await call('notifications',{user:$('#tn').value});$('#tin').innerHTML=t.map(x=>`<div class="msg">${esc(x)}</div>`).join('')||'<p class="mu">Нет уведомлений</p>'}
+async function done(i){try{const r=await call('complete',{student:$('#who').value,course:M[i].course},'POST');alert('Сертификат выдан: '+r.file);cabinet()}catch(e){alert(e.message)}}
+async function create(){try{const f=id=>$('#'+id).value;await call('create',{title:f('ti'),teacher:f('tn'),price:f('pr'),tags:f('tg'),module:f('mo'),type:f('ty'),contentTitle:f('ct'),contentData:f('cd'),description:f('de'),hours:f('hr'),bio:f('bi')},'POST');alert('Курс создан');cabinet()}catch(e){alert(e.message)}}
+async function grade(){try{await call('grade',{course:$('#gc').value,student:$('#gs').value,grade:$('#gv').value},'POST');alert('Оценка отправлена студенту');cabinet()}catch(e){alert(e.message)}}
+async function announce(){try{await call('announce',{course:$('#ac').value,text:$('#at').value},'POST');$('#at').value='';cabinet()}catch(e){alert(e.message)}}
+page('p1')
+</script></body></html>
